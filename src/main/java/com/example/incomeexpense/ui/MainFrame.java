@@ -17,10 +17,12 @@ public final class MainFrame extends JFrame {
 
         LedgerPanel ledgerPanel = new LedgerPanel(dao);
         EntryPanel entryPanel = new EntryPanel(dao, ledgerPanel::refresh);
+        MlIntegrationPanel mlIntegrationPanel = new MlIntegrationPanel(dao);
 
         JTabbedPane tabs = new JTabbedPane();
         tabs.addTab("Add Entry", entryPanel);
         tabs.addTab("Ledger & Balance", ledgerPanel);
+        tabs.addTab("ML Integration", mlIntegrationPanel);
 
         setLayout(new BorderLayout());
         add(tabs, BorderLayout.CENTER);
