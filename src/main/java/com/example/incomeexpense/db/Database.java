@@ -1,15 +1,18 @@
 package com.example.incomeexpense.db;
 
+import com.j256.ormlite.jdbc.JdbcConnectionSource;
+import com.j256.ormlite.support.ConnectionSource;
+import com.j256.ormlite.table.TableUtils;
+
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.sql.Statement;
 
 public final class Database {
     private static final String DB_FOLDER = "data";
     private static final String DB_FILE = "app.db";
+
+    private static volatile ConnectionSource connectionSource;
 
     private Database() {
     }
@@ -26,28 +29,52 @@ public final class Database {
             throw new RuntimeException("Failed to create data directory", e);
         }
 
-        try (Connection connection = open(); Statement statement = connection.createStatement()) {
-            statement.execute("PRAGMA foreign_keys = ON");
-            statement.execute(
-                    "CREATE TABLE IF NOT EXISTS ledger_entry (" +
-                            "id INTEGER PRIMARY KEY AUTOINCREMENT," +
-                            "entry_date TEXT NOT NULL," +
-                            "type TEXT NOT NULL CHECK(type IN ('INCOME','EXPENSE'))," +
-                            "category TEXT NOT NULL," +
-                            "description TEXT," +
-                            "amount_cents INTEGER NOT NULL CHECK(amount_cents >= 0)," +
-                            "created_at TEXT NOT NULL" +
-                            ")"
-            );
+        // Initialize ORMLite (idempotent).
+        connectionSource();
 
-            statement.execute("CREATE INDEX IF NOT EXISTS idx_ledger_entry_date ON ledger_entry(entry_date)");
-            statement.execute("CREATE INDEX IF NOT EXISTS idx_ledger_entry_type ON ledger_entry(type)");
+        try {
+            TableUtils.createTableIfNotExists(connectionSource, LedgerEntryEntity.class);
         } catch (SQLException e) {
-            throw new RuntimeException("Failed to initialize database", e);
+            throw new RuntimeException("Failed to initialize database schema", e);
         }
     }
 
-    public static Connection open() throws SQLException {
-        return DriverManager.getConnection(jdbcUrl());
+    public static ConnectionSource connectionSource() {
+        if (connectionSource != null) {
+            return connectionSource;
+        }
+
+        synchronized (Database.class) {
+            if (connectionSource != null) {
+                return connectionSource;
+            }
+            try {
+                connectionSource = new JdbcConnectionSource(jdbcUrl());
+                return connectionSource;
+            } catch (SQLException e) {
+                throw new RuntimeException("Failed to open database", e);
+            }
+        }
+    }
+
+    public static void close() {
+        ConnectionSource cs = connectionSource;
+        connectionSource = null;
+
+        if (cs != null) {
+            try {
+                cs.close();
+            } catch (Exception e) {
+                throw new RuntimeException("Failed to close database", e);
+            }
+        }
+    }
+
+    public static void closeQuietly() {
+        try {
+            close();
+        } catch (Exception ignored) {
+            // best-effort shutdown
+        }
     }
 }

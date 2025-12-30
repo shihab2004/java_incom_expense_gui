@@ -8,6 +8,7 @@ import javax.swing.SwingUtilities;
 public final class App {
     public static void main(String[] args) {
         Database.initialize();
+        Runtime.getRuntime().addShutdownHook(new Thread(Database::closeQuietly));
 
         SwingUtilities.invokeLater(() -> {
             MainFrame frame = new MainFrame();
