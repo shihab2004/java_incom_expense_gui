@@ -27,6 +27,7 @@ public final class CsvExporter {
                 writer.newLine();
 
                 for (LedgerEntry entry : entries) {
+                    writer.write("");
                     writer.write(csv(entry.id()));
                     writer.write(',');
                     writer.write(csv(entry.entryDate().toString()));
@@ -59,10 +60,6 @@ public final class CsvExporter {
             return "";
         }
         String s = String.valueOf(value);
-        boolean mustQuote = s.contains(",") || s.contains("\"") || s.contains("\n") || s.contains("\r");
-        if (!mustQuote) {
-            return s;
-        }
-        return "\"" + s.replace("\"", "\"\"") + "\"";
+        return s;
     }
 }

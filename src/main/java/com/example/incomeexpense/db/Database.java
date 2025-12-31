@@ -23,14 +23,7 @@ public final class Database {
     }
 
     public static void initialize() {
-        // try {
-        //     Files.createDirectories(Path.of(DB_FOLDER));
-        //     System.out.print("asd");
-        // } catch (Exception e) {
-        //     throw new RuntimeException("Failed to create data directory", e);
-        // }
 
-        // Initialize ORMLite (idempotent).
         connectionSource();
 
         try {
