@@ -11,7 +11,7 @@ public final class App {
         System.setProperty("org.slf4j.simpleLogger.log.com.j256.ormlite", "warn");
 
         Database.initialize();
-        Runtime.getRuntime().addShutdownHook(new Thread(Database::closeQuietly));
+        Runtime.getRuntime().addShutdownHook(new Thread(Database::close));
 
         new ConsoleApp().run();
     }

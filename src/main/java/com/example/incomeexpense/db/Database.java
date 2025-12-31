@@ -23,11 +23,12 @@ public final class Database {
     }
 
     public static void initialize() {
-        try {
-            Files.createDirectories(Path.of(DB_FOLDER));
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to create data directory", e);
-        }
+        // try {
+        //     Files.createDirectories(Path.of(DB_FOLDER));
+        //     System.out.print("asd");
+        // } catch (Exception e) {
+        //     throw new RuntimeException("Failed to create data directory", e);
+        // }
 
         // Initialize ORMLite (idempotent).
         connectionSource();
@@ -43,38 +44,31 @@ public final class Database {
         if (connectionSource != null) {
             return connectionSource;
         }
-
-        synchronized (Database.class) {
-            if (connectionSource != null) {
-                return connectionSource;
-            }
             try {
                 connectionSource = new JdbcConnectionSource(jdbcUrl());
                 return connectionSource;
             } catch (SQLException e) {
                 throw new RuntimeException("Failed to open database", e);
             }
-        }
+        // synchronized (Database.class) {
+        //     if (connectionSource != null) {
+        //         return connectionSource;
+        //     }
+
+        // }
     }
 
     public static void close() {
-        ConnectionSource cs = connectionSource;
-        connectionSource = null;
 
-        if (cs != null) {
+        if (connectionSource != null) {
             try {
-                cs.close();
+                connectionSource.close();
+                connectionSource = null;
             } catch (Exception e) {
                 throw new RuntimeException("Failed to close database", e);
             }
         }
     }
 
-    public static void closeQuietly() {
-        try {
-            close();
-        } catch (Exception ignored) {
-            // best-effort shutdown
-        }
-    }
+
 }
