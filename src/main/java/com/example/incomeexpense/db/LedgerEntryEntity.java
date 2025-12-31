@@ -28,7 +28,7 @@ public final class LedgerEntryEntity {
     private String createdAt;
 
     public LedgerEntryEntity() {
-        // ORMLite requires a no-arg constructor.
+
     }
 
     public long getId() {

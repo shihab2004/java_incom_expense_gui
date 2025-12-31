@@ -27,7 +27,7 @@ public final class MoneyFormat {
             throw new IllegalArgumentException("Amount must be >= 0");
         }
 
-        BigDecimal cents = value.multiply(BigDecimal.valueOf(100)).setScale(0, RoundingMode.HALF_UP);
+        BigDecimal cents = value.multiply(BigDecimal.valueOf(100));
         return cents.longValueExact();
     }
 

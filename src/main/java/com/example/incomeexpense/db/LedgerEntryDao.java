@@ -52,7 +52,18 @@ public final class LedgerEntryDao {
             List<LedgerEntryEntity> entities = dao.query(qb.prepare());
             List<LedgerEntry> result = new ArrayList<>(entities.size());
             for (LedgerEntryEntity entity : entities) {
-                result.add(map(entity));
+                result.add(
+                        new LedgerEntry(
+                                entity.getId(),
+                                LocalDate.parse(entity.getEntryDate()),
+                                EntryType.valueOf(entity.getType()),
+                                entity.getCategory(),
+                                entity.getDescription(),
+                                entity.getAmountCents(),
+                                OffsetDateTime.parse(entity.getCreatedAt())
+                        )
+
+                );
             }
             return result;
         } catch (SQLException e) {
@@ -79,15 +90,4 @@ public final class LedgerEntryDao {
         }
     }
 
-    private static LedgerEntry map(LedgerEntryEntity entity) {
-        return new LedgerEntry(
-                entity.getId(),
-                LocalDate.parse(entity.getEntryDate()),
-                EntryType.valueOf(entity.getType()),
-                entity.getCategory(),
-                entity.getDescription(),
-                entity.getAmountCents(),
-                OffsetDateTime.parse(entity.getCreatedAt())
-        );
-    }
 }
