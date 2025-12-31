@@ -1,0 +1,1 @@
+$files = Get-ChildItem -Recurse "src\main\java" -Filter "*.java" | ForEach-Object { $_.FullName }; javac --release 17 -cp "lib/*" -d "target\classes" $files

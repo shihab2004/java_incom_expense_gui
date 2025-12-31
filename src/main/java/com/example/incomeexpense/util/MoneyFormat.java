@@ -1,4 +1,4 @@
-package com.example.incomeexpense.ui;
+package com.example.incomeexpense.util;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -34,5 +34,12 @@ public final class MoneyFormat {
     public static String centsToDollars(long cents) {
         BigDecimal value = BigDecimal.valueOf(cents).divide(BigDecimal.valueOf(100), 2, RoundingMode.UNNECESSARY);
         return value.toPlainString();
+    }
+
+    public static String centsToSignedDollars(long cents) {
+        if (cents < 0) {
+            return "-" + centsToDollars(Math.abs(cents));
+        }
+        return centsToDollars(cents);
     }
 }
