@@ -1,7 +1,7 @@
 package com.example.incomeexpense;
 
-import com.example.incomeexpense.db.Database;
 import com.example.incomeexpense.cli.ConsoleApp;
+import com.example.incomeexpense.db.Database;
 
 public final class App {
     public static void main(String[] args) {

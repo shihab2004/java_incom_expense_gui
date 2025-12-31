@@ -10,6 +10,7 @@ import com.example.incomeexpense.util.MoneyFormat;
 import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Scanner;
@@ -85,7 +86,7 @@ public final class ConsoleApp {
     private void showLedger() {
         System.out.println();
         List<LedgerEntry> entries = dao.listAll();
-        entries.sort(Comparator.comparing(LedgerEntry::entryDate).thenComparingLong(LedgerEntry::id));
+        Collections.reverse(entries);
 
         if (entries.isEmpty()) {
             System.out.println("Ledger is empty.\n");
@@ -98,17 +99,14 @@ public final class ConsoleApp {
         for (LedgerEntry entry : entries) {
             long signed = entry.type() == EntryType.INCOME ? entry.amountCents() : -entry.amountCents();
             String desc = entry.description() == null ? "" : entry.description();
-            if (desc.length() > 25) {
-                desc = desc.substring(0, 22) + "...";
-            }
 
             System.out.printf(
                     "%-4d %-10s %-7s %-15s %-25s %12s\n",
                     entry.id(),
                     entry.entryDate(),
                     entry.type(),
-                    safeTrim(entry.category(), 15),
-                    safeTrim(desc, 25),
+                    safeTrim(entry.category(), 8),
+                    safeTrim(desc, 15),
                     MoneyFormat.centsToSignedDollars(signed)
             );
         }
@@ -127,7 +125,7 @@ public final class ConsoleApp {
         Path out = Path.of(pathText);
 
         List<LedgerEntry> entries = dao.listAll();
-        entries.sort(Comparator.comparing(LedgerEntry::entryDate).thenComparingLong(LedgerEntry::id));
+        Collections.reverse(entries);
 
         CsvExporter.exportLedger(out, entries);
         System.out.println("Exported: " + out.toAbsolutePath().normalize());
@@ -137,7 +135,7 @@ public final class ConsoleApp {
     private void forecast() {
         System.out.println();
         List<LedgerEntry> entries = dao.listAll();
-        entries.sort(Comparator.comparing(LedgerEntry::entryDate).thenComparingLong(LedgerEntry::id));
+        Collections.reverse(entries);
 
         if (entries.isEmpty()) {
             System.out.println("Not enough history to forecast (ledger is empty).\n");
@@ -173,7 +171,6 @@ public final class ConsoleApp {
     private String readRequired(String prompt) {
         while (true) {
             String value = readLine(prompt);
-            System.out.println(value);
             if (value != null && !value.trim().isEmpty()) {
                 return value;
             }
@@ -196,23 +193,12 @@ public final class ConsoleApp {
 
     private long readAmountCents(String prompt) {
         while (true) {
-            // String value = readLine(prompt);
-            // try {
-            //     return MoneyFormat.dollarsToCents(value);
-            // } catch (IllegalArgumentException e) {
-            //     System.out.println("Error: " + e.getMessage());
-            // }
-            System.out.print(prompt);
-            Double value = in.nextDouble();
-            if (Double.isNaN(value) || value < 0) {
-                System.out.println("Error: Invalid amount");
-                continue;
+            String value = readLine(prompt);
+            try {
+                return MoneyFormat.dollarsToCents(value);
+            } catch (IllegalArgumentException e) {
+                System.out.println("Invalid amount: " + e.getMessage());
             }
-
-            System.out.println(value);
-            long cents = Math.round(value * 100);
-            System.out.println("Cents: " + cents);
-            return cents;
         }
     }
 
@@ -233,13 +219,9 @@ public final class ConsoleApp {
     }
 
     private static String safeTrim(String text, int maxLen) {
-        if (text == null) {
-            return "";
-        }
-        String t = text.trim();
-        if (t.length() <= maxLen) {
-            return t;
-        }
-        return t.substring(0, Math.max(0, maxLen - 3)) + "...";
+         if (text.length() > maxLen) {
+             text = text.substring(0, maxLen) + "...";
+         }
+        return text;
     }
 }
