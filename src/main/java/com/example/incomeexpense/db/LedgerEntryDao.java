@@ -47,8 +47,7 @@ public final class LedgerEntryDao {
     public List<LedgerEntry> listAll() {
         try {
             QueryBuilder<LedgerEntryEntity, Long> qb = dao.queryBuilder();
-            qb.orderBy("entry_date", false);
-            qb.orderBy("id", false);
+            qb.orderBy("id", true);
 
             List<LedgerEntryEntity> entities = dao.query(qb.prepare());
             List<LedgerEntry> result = new ArrayList<>(entities.size());

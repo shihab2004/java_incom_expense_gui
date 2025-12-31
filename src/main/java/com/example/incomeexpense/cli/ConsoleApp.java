@@ -10,8 +10,6 @@ import com.example.incomeexpense.util.MoneyFormat;
 import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Scanner;
 
@@ -86,7 +84,7 @@ public final class ConsoleApp {
     private void showLedger() {
         System.out.println();
         List<LedgerEntry> entries = dao.listAll();
-        Collections.reverse(entries);
+
 
         if (entries.isEmpty()) {
             System.out.println("Ledger is empty.\n");
@@ -125,7 +123,6 @@ public final class ConsoleApp {
         Path out = Path.of(pathText);
 
         List<LedgerEntry> entries = dao.listAll();
-        Collections.reverse(entries);
 
         CsvExporter.exportLedger(out, entries);
         System.out.println("Exported: " + out.toAbsolutePath().normalize());
@@ -135,7 +132,6 @@ public final class ConsoleApp {
     private void forecast() {
         System.out.println();
         List<LedgerEntry> entries = dao.listAll();
-        Collections.reverse(entries);
 
         if (entries.isEmpty()) {
             System.out.println("Not enough history to forecast (ledger is empty).\n");
